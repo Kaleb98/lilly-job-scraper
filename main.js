@@ -1,4 +1,4 @@
-const HOURS_LIMIT = 24;
+const HOURS_LIMIT = 168;
 const PROXY_URL = "https://candid-moxie-4889e0.netlify.app/.netlify/functions/fetch-jobs";
 
 function isWithin24Hours(dateString) {
@@ -68,3 +68,4 @@ window.runSearch = async function () {
     btn.textContent = "Search Jobs";
   }
 };
+
