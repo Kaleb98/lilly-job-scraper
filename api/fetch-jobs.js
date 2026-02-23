@@ -1,5 +1,5 @@
 const https = require("https");
-const RAPIDAPI_KEY = "263172727bmsh79e63b82c671d3fp1768f8jsn188a4057f8cc"; // <-- your key goes here
+const RAPIDAPI_KEY = "263172727bmsh79e63b82c671d3fp1768f8jsn188a4057f8cc";
 
 module.exports = async function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -11,7 +11,7 @@ module.exports = async function (req, res) {
   const options = {
     method: "GET",
     hostname: "jsearch.p.rapidapi.com",
-    path: `/search?query=${query}&page=1&num_pages=3&country=us&date_posted=all`,
+    path: `/search?query=${query}&page=1&num_pages=3&country=us&date_posted=today`,
     headers: {
       "x-rapidapi-host": "jsearch.p.rapidapi.com",
       "x-rapidapi-key": RAPIDAPI_KEY
