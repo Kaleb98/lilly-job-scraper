@@ -1,46 +1,29 @@
 const https = require("https");
 
 module.exports = async function (req, res) {
-  const postData = JSON.stringify({
-    "lang": "en_us",
-    "orgId": "LILLUS",
-    "siteType": "external",
-    "facets": {},
-    "limit": 50,
-    "offset": 0,
-    "searchText": ""
-  });
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Content-Type", "application/json");
 
-  const options = {
-    hostname: "careers.lilly.com",
-    path: "/widgets/jobs/search",
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-      "Content-Length": Buffer.byteLength(postData),
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      "Referer": "https://careers.lilly.com/us/en/search-results",
-      "Origin": "https://careers.lilly.com"
-    }
-  };
+  const url = "https://careers.lilly.com/us/en/search-results?format=json";
+
+  // Try their job feed via the refNum we found (LILLUS)
+  const feedUrl = "https://content-us.phenompeople.com/api/content-delivery/caasContentV1?refNum=LILLUS&lang=en_us&blob=jobwidgetsettings";
 
   try {
     const data = await new Promise((resolve, reject) => {
-      const req2 = https.request(options, (r) => {
+      https.get(feedUrl, {
+        headers: {
+          "User-Agent": "Mozilla/5.0",
+          "Accept": "application/json",
+        }
+      }, (r) => {
         let body = "";
         r.on("data", (chunk) => (body += chunk));
         r.on("end", () => resolve(body));
-      });
-      req2.on("error", reject);
-      req2.write(postData);
-      req2.end();
+      }).on("error", reject);
     });
 
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Content-Type", "text/plain");
-    res.send(data || "empty response");
-
+    res.send(data || JSON.stringify({ jobs: [] }));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
