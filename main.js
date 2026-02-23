@@ -14,8 +14,7 @@ function parseKeywords(input) {
 
 function jobMatchesKeywords(job, keywords) {
   const searchText = [job.title, job.description, job.department, job.category, job.city, job.state]
-    .join(" ")
-    .toLowerCase();
+    .join(" ").toLowerCase();
   return keywords.some((kw) => searchText.includes(kw));
 }
 
@@ -50,11 +49,8 @@ function renderResults(jobs, keywords) {
     <table>
       <thead>
         <tr>
-          <th>Job Title</th>
-          <th>Location</th>
-          <th>Department</th>
-          <th>Posted Date</th>
-          <th>Matched Keyword</th>
+          <th>Job Title</th><th>Location</th><th>Department</th>
+          <th>Posted Date</th><th>Matched Keyword</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
@@ -81,12 +77,8 @@ window.runSearch = async function () {
   try {
     for (const kw of keywords) {
       setStatus(`Searching for "${kw}"...`);
-
       const url = `${PROXY_URL}?q=${encodeURIComponent(kw)}`;
-
-      const response = await fetch(url, {
-        headers: { Accept: "application/json" },
-      });
+      const response = await fetch(url, { headers: { Accept: "application/json" } });
 
       if (!response.ok) {
         console.warn(`Request failed for "${kw}": ${response.status}`);
@@ -95,7 +87,6 @@ window.runSearch = async function () {
 
       const data = await response.json();
       const jobs = data.jobs || data.data || data.results || [];
-
       console.log(`Keyword "${kw}": ${jobs.length} raw results`);
 
       for (const job of jobs) {
