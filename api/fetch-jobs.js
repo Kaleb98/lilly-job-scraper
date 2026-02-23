@@ -11,7 +11,7 @@ module.exports = async function (req, res) {
   const options = {
     method: "GET",
     hostname: "jsearch.p.rapidapi.com",
-    path: `/search?query=${query}&page=1&num_pages=3&country=us&date_posted=today`,
+    path: `/search?query=${query}&page=1&num_pages=3&country=us`,
     headers: {
       "x-rapidapi-host": "jsearch.p.rapidapi.com",
       "x-rapidapi-key": RAPIDAPI_KEY
