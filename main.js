@@ -1,8 +1,8 @@
-const HOURS_LIMIT = 72;
+const HOURS_LIMIT = 24;
 const PROXY_URL = "https://lilly-job-scraper.vercel.app/api/fetch-jobs";
 
 function isWithinLimit(dateString) {
-  if (!dateString) return true;
+  if (!dateString) return false; // exclude jobs with no date
   const posted = new Date(dateString);
   const now = new Date();
   return (now - posted) / (1000 * 60 * 60) <= HOURS_LIMIT;
@@ -66,4 +66,5 @@ window.runSearch = async function () {
     btn.textContent = "Search US Jobs (Last 24 Hours)";
   }
 };
+
 
