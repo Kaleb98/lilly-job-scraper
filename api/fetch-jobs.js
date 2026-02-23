@@ -1,20 +1,40 @@
 const https = require("https");
 
 module.exports = async function (req, res) {
-  const url = "https://careers.lilly.com/us/en/rss";
+  const postData = JSON.stringify({
+    "lang": "en_us",
+    "orgId": "LILLUS",
+    "siteType": "external",
+    "facets": {},
+    "limit": 50,
+    "offset": 0,
+    "searchText": ""
+  });
+
+  const options = {
+    hostname: "careers.lilly.com",
+    path: "/widgets/jobs/search",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Content-Length": Buffer.byteLength(postData),
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "Referer": "https://careers.lilly.com/us/en/search-results",
+      "Origin": "https://careers.lilly.com"
+    }
+  };
 
   try {
     const data = await new Promise((resolve, reject) => {
-      https.get(url, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          "Accept": "application/rss+xml, application/xml, text/xml",
-        }
-      }, (r) => {
+      const req2 = https.request(options, (r) => {
         let body = "";
         r.on("data", (chunk) => (body += chunk));
         r.on("end", () => resolve(body));
-      }).on("error", reject);
+      });
+      req2.on("error", reject);
+      req2.write(postData);
+      req2.end();
     });
 
     res.setHeader("Access-Control-Allow-Origin", "*");
