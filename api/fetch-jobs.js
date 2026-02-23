@@ -1,6 +1,7 @@
 const https = require("https");
 
 module.exports = async function (req, res) {
+  // Try the job-specific sitemap
   const url = "https://careers.lilly.com/us/en/sitemap.xml";
 
   try {
@@ -18,21 +19,11 @@ module.exports = async function (req, res) {
       }).on("error", reject);
     });
 
-    const jobMatches = [...data.matchAll(/<loc>(.*?)<\/loc>[\s\S]*?<lastmod>(.*?)<\/lastmod>/g)];
-
-    const jobs = jobMatches
-      .filter(m => m[1].includes("/job/"))
-      .map(m => ({
-        title: m[1].split("/job/")[1]?.replace(/-/g, " ").replace(/\d+\/?$/, "").trim() || "Lilly Job",
-        canonicalPositionUrl: m[1],
-        postedDate: m[2],
-        city: "United States",
-        state: "US",
-        department: "N/A",
-      }));
-
+    // Return raw sitemap so we can see what's actually in it
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.json({ jobs });
+    res.setHeader("Content-Type", "text/plain");
+    res.send(data);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
