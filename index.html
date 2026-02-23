@@ -1,2 +1,27 @@
-<!DOCTYPE html><html><body><h1>Proxy Active</h1></body></html>
- 
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Lilly Job Scraper</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔍 Lilly Careers Job Scraper</h1>
+      <p class="subtitle">Finds jobs posted in the last 24 hours matching your keywords</p>
+      <div class="input-section">
+        <label for="keywords">Keywords (comma-separated):</label>
+        <input
+          type="text"
+          id="keywords"
+          placeholder="e.g. pharmacovigilance, drug safety, medical affairs"
+          value="pharmacovigilance, drug safety, medical affairs, clinical pharmacology"
+        />
+        <button id="searchBtn" onclick="runSearch()">Search Jobs</button>
+      </div>
+      <div id="status" class="status hidden"></div>
+      <div id="results"></div>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
