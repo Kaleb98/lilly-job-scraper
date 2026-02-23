@@ -1,19 +1,14 @@
 const https = require("https");
 
 exports.handler = async function (event) {
-  const keyword = (event.queryStringParameters?.q || "").toLowerCase();
-
-  // Lilly's public job feed - bypasses Cloudflare
-  const url = "https://careers.lilly.com/us/en/sitemap.xml";
+  const url = `https://careers.lilly.com/api/apply/v2/jobs?domain=lilly.com&start=0&num=100&locale=en_US&location=United+States&country=US`;
 
   try {
     const data = await new Promise((resolve, reject) => {
       https.get(url, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-          "Accept": "text/html,application/xhtml+xml,application/xml",
-          "Accept-Language": "en-US,en;q=0.9",
-          "Cache-Control": "no-cache",
+          "Accept": "application/json",
         }
       }, (res) => {
         let body = "";
@@ -24,16 +19,10 @@ exports.handler = async function (event) {
 
     return {
       statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ raw: data, keyword }),
+      headers: { "Access-Control-Allow-Origin": "*", "Content-Type": "application/json" },
+      body: data,
     };
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: err.message }),
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
   }
 };
