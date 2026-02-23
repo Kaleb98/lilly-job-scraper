@@ -3,15 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lilly Careers Job Scraper</title>
+    <title>Pharma Job Scraper</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="container">
-      <h1>🔍 Lilly Careers Job Scraper</h1>
+      <h1>🔍 Pharma Careers Job Scraper</h1>
       <p class="subtitle">Finds all US jobs posted in the last 24 hours</p>
 
       <div class="input-section">
+        <select id="companySelect">
+          <option value="Eli Lilly">Eli Lilly</option>
+          <option value="Amgen">Amgen</option>
+        </select>
         <button id="searchBtn" onclick="runSearch()">Search US Jobs (Last 24 Hours)</button>
       </div>
 
