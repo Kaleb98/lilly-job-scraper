@@ -1,5 +1,28 @@
 const https = require("https");
 
+function makeRequest(url, options, postData, redirectCount = 0) {
+  return new Promise((resolve, reject) => {
+    if (redirectCount > 5) return reject(new Error("Too many redirects"));
+
+    const req = https.request(url, options, (res) => {
+      // Follow redirect
+      if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) {
+        const location = res.headers.location;
+        resolve(`REDIRECTED TO: ${location}`);
+        return;
+      }
+
+      let body = "";
+      res.on("data", (chunk) => (body += chunk));
+      res.on("end", () => resolve(`STATUS:${res.statusCode}\n${body}`));
+    });
+
+    req.on("error", reject);
+    if (postData) req.write(postData);
+    req.end();
+  });
+}
+
 module.exports = async function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Content-Type", "text/plain");
@@ -15,8 +38,6 @@ module.exports = async function (req, res) {
   });
 
   const options = {
-    hostname: "careers.lilly.com",
-    path: "/api/jobs",
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -32,16 +53,11 @@ module.exports = async function (req, res) {
   };
 
   try {
-    const data = await new Promise((resolve, reject) => {
-      const r = https.request(options, (res2) => {
-        let body = "";
-        res2.on("data", (chunk) => (body += chunk));
-        res2.on("end", () => resolve(`STATUS:${res2.statusCode}\n${body}`));
-      });
-      r.on("error", reject);
-      r.write(postData);
-      r.end();
-    });
+    const data = await makeRequest(
+      "https://careers.lilly.com/api/jobs",
+      options,
+      postData
+    );
 
     res.send(data || "empty");
   } catch (err) {
