@@ -1,65 +1,44 @@
 const https = require("https");
-
-function makeRequest(url, options, postData, redirectCount = 0) {
-  return new Promise((resolve, reject) => {
-    if (redirectCount > 5) return reject(new Error("Too many redirects"));
-
-    const req = https.request(url, options, (res) => {
-      // Follow redirect
-      if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) {
-        const location = res.headers.location;
-        resolve(`REDIRECTED TO: ${location}`);
-        return;
-      }
-
-      let body = "";
-      res.on("data", (chunk) => (body += chunk));
-      res.on("end", () => resolve(`STATUS:${res.statusCode}\n${body}`));
-    });
-
-    req.on("error", reject);
-    if (postData) req.write(postData);
-    req.end();
-  });
-}
+const RAPIDAPI_KEY = "263172727bmsh79e63b82c671d3fp1768f8jsn188a4057f8cc"; // <-- your key goes here
 
 module.exports = async function (req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Content-Type", "text/plain");
+  res.setHeader("Content-Type", "application/json");
 
-  const postData = JSON.stringify({
-    refNum: "LILLUS",
-    lang: "en_us",
-    siteType: "external",
-    size: 20,
-    from: 0,
-    multiFields: [],
-    facets: {}
-  });
+  const company = req.query?.company || "Eli Lilly";
+  const query = encodeURIComponent(`${company} jobs`);
 
   const options = {
-    method: "POST",
+    method: "GET",
+    hostname: "jsearch.p.rapidapi.com",
+    path: `/search?query=${query}&page=1&num_pages=3&country=us&date_posted=all`,
     headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-      "Content-Length": Buffer.byteLength(postData),
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      "Referer": "https://careers.lilly.com/us/en/search-results",
-      "Origin": "https://careers.lilly.com",
-      "x-ph-refnum": "LILLUS",
-      "x-ph-sitevariant": "external",
-      "x-ph-locale": "en_us"
+      "x-rapidapi-host": "jsearch.p.rapidapi.com",
+      "x-rapidapi-key": RAPIDAPI_KEY
     }
   };
 
   try {
-    const data = await makeRequest(
-      "https://careers.lilly.com/api/jobs",
-      options,
-      postData
-    );
+    const data = await new Promise((resolve, reject) => {
+      https.request(options, (r) => {
+        let body = "";
+        r.on("data", (chunk) => (body += chunk));
+        r.on("end", () => resolve(body));
+      }).on("error", reject).end();
+    });
 
-    res.send(data || "empty");
+    const parsed = JSON.parse(data);
+    const jobs = (parsed.data || []).map(job => ({
+      title: job.job_title,
+      company: job.employer_name,
+      location: `${job.job_city || ""}${job.job_state ? ", " + job.job_state : ""}`,
+      url: job.job_apply_link,
+      posted: job.job_posted_at_datetime_utc,
+      source: job.job_publisher,
+      description: job.job_description?.substring(0, 300) + "..."
+    }));
+
+    res.json({ jobs });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
